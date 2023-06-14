@@ -68,10 +68,13 @@ Next I configured application setting in the first function app with the followi
 |blobStorageConnection |	blobStorageConnection from Key Vault|
 <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(109).png>
 
-For referencing the secrets from the KeyVault I followed the steps from this <a href=https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references?tabs=azure-cli>doc.</a>
+For referencing the secrets from the KeyVault I followed the steps from this <a href="https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references?tabs=azure-cli">doc</a>.
+
 Then I published the tollbooth app to the function app through vscode. You can take a look at those functions in the repo. There are two functions , ProcessImage and ExportLicencePlate. After publishing the app to the function app , I then added the event grid subscription to the "Process Image" function. Similarly I published the function events (which u can take a look in the repo) to the function app and created event grid subscription to each of those event functions which you can see in the image below.
 <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(110).png>
+
 Then I integrated these event functions with cosmosDb to process the output and store the data in the container.
+
 Function integration chart:
 <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(104).png> 
 Then I provisioned a new resource(Application insights) for monitoring the whole architecture. I also configured the function apps to connect to the application insight . The file UploadImages is a cli application which asks the user the blobstorage connection key to upload images to the blob. So first I chose to upload 10 images, you can see the metrics below:
