@@ -46,7 +46,12 @@ To implement the solution , we have to provision the following resources:
   | eventGridTopicKey 	Event| Grid Topic access key |
   | cosmosDBAuthorizationKey| Cosmos DB Primary Key |
   | blobStorageConnection|Blob storage connection string |
-
+  
+  The resources provisioned (11 of them):
+  <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(96).png>
+  <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(97).png>
+  Secrets created in the resource KeyVault:
+  <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(108).png>
  # Configuration
 Next I configured application setting in the first function app with the following key:value pairs:
 | Application key | value |
@@ -61,10 +66,32 @@ Next I configured application setting in the first function app with the followi
 |cosmosDBCollectionId |	Cosmos DB processed collection id (Processed)|
 |exportCsvContainerName |	Blob storage CSV export container name (export)|
 |blobStorageConnection |	blobStorageConnection from Key Vault|
+<img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(109).png>
 
 For referencing the secrets from the KeyVault I followed the steps from this <a href=https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references?tabs=azure-cli>doc.</a>
-Then I published the tollbooth app to the function app through vscode. You can take a look at those functions in the repo. There are two functions , ProcessImage and ExportLicencePlate. After publishing the app to the function app , I then added the event grid subscription to the "Process Image" function. Similarly I published the function events (which u can take a look in the repo) to the function app and created event grid subscription to each of those event functions.Then I integrated these event functions with cosmosDb to process the output and store the data in the containers . Then I provisioned a new resource(Application insights) for monitoring the whole architecture. I also configured the function apps to connect to the application insight . The file UploadImages is a cli application which asks the user the blobstorage connection key to upload images to the blob. So first I chose to upload 10 images, you can see the metrics below:
+Then I published the tollbooth app to the function app through vscode. You can take a look at those functions in the repo. There are two functions , ProcessImage and ExportLicencePlate. After publishing the app to the function app , I then added the event grid subscription to the "Process Image" function. Similarly I published the function events (which u can take a look in the repo) to the function app and created event grid subscription to each of those event functions which you can see in the image below.
+<img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(110).png>
+Then I integrated these event functions with cosmosDb to process the output and store the data in the container.
+Function integration chart:
+<img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(104).png> 
+Then I provisioned a new resource(Application insights) for monitoring the whole architecture. I also configured the function apps to connect to the application insight . The file UploadImages is a cli application which asks the user the blobstorage connection key to upload images to the blob. So first I chose to upload 10 images, you can see the metrics below:
+  <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(98).png>
+  
 Then I chose to upload 1000 images to observe the function, you can view the screenshot of the metrics below:
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(100).png>
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(101).png>
+If you notice , the number of servers when I upload only 10 images was only 4 but when I was uplaoding 1000 images , the servers increased to 7 and few of them were not even used. So basically the servers scaled up by itself to handle the required requests. This also shows that serverless is truly sever less since we dont have to really manage anything , the provider takes care of it all.
+  
+The images that get stored in the cosmosdb containers after executing the function:
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(107).png>
 After observing the infrastructure, I created a logic app . A logic app is an automated workflow which can be run on triggers. For this application the trigger reoccurs every 15 mins. Then the workflow will call the function ExportLicensePlates and then I added a condition control where the status code has to be 200. If the function returns something else the workflow will send an email notifying me about it. If the status code is 200, then the function will export the licence plate numbers to a csv file in the export container which we created earlier. 
- Well the solution is now complete and fully functional. This project taught me how to work with new services such as computervision , CosmosDB , EventGrids and logic apps.
+Logic design:
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(103).png>
+ This is the final resources in the resource group after completion:
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(105).png>
+ <img src=https://github.com/rghdrizzle/Tollbooth-serverless/blob/main/Screenshot%20(106).png>
+ Well the solution is now complete and fully functional. This project taught me how to work with new services such as computervision , CosmosDB , EventGrids and logic apps and I had fun playing the platform and experimenting stuffs.
+ # Thank you for going through this :)
  
+  
+  <img src=https://media.giphy.com/media/7J4P7cUur2DlErijp3/giphy.gif>
